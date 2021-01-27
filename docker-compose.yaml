@@ -5,9 +5,11 @@ services:
     image: postgres:9.6.17
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRESQL_DB}
-      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
     networks:
       - local-keycloak
 
@@ -18,15 +20,23 @@ services:
     environment:
       DB_VENDOR: postgres
       DB_ADDR: postgres
-      DB_DATABASE: ${POSTGRESQL_DB}
-      DB_USER: ${POSTGRESQL_USER}
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
       DB_PASSWORD: ${POSTGRESQL_PASS}
-    image: jboss/keycloak:${KEYCLOAK_VERSION}
+
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASS}
+    image: jboss/keycloak:12.0.2
     ports:
-      - "8080:8080"
+      - "18080:8080"
     restart: always
     networks:
       - local-keycloak
+
+  oauth2-proxy:
+    image: docker.io/bitnami/oauth2-proxy:6-debian-10
+    ports:
+      - '28080:8080'
+      - '24180:4180'
 
 networks:
   local-keycloak:
